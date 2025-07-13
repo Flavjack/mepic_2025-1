@@ -1,0 +1,50 @@
+---
+title: "analisis de datos"
+author: "Flavio"
+format: html
+---
+
+# Paquetes
+
+```{r}
+library(googlesheets4)
+library(tidyverse)
+```
+
+Ya cargué los paquetes requeridos
+
+# Importar datos 
+
+Importar de googlesheets al RStudio.
+
+```{r}
+url <- "https://docs.google.com/spreadsheets/d/1RO_yGouXxmQUSJ0yp_7oBMGK7AM2nZw-G44GTsnX7KI/edit?gid=2079144391#gid=2079144391"
+
+gs <- url %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read(sheet = "fb")
+```
+
+# Modelo estadistico
+
+$$Y = u + Temperatura + Tiempo + Temperatura*Tiempo + e$$
+# ANOVA
+
+```{r}
+modelo <- aov(Catequinas ~ Tiempo * Temperatura, data = fb)
+
+anova(modelo)
+
+plot(modelo)
+```
+
+
+
+
+
+
+
+
+
