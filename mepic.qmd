@@ -2,6 +2,8 @@
 title: "analisis de datos"
 author: "Flavio"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Paquetes
@@ -9,6 +11,7 @@ format: html
 ```{r}
 library(googlesheets4)
 library(tidyverse)
+library(emmeans)
 ```
 
 Ya cargué los paquetes requeridos
@@ -24,12 +27,19 @@ gs <- url %>%
   as_sheets_id()
 
 fb <- gs %>% 
-  range_read(sheet = "fb")
+  range_read(sheet = "fb") %>% 
+    mutate(
+    Tiempo = factor(Tiempo),
+    Temperatura = factor(Temperatura),
+    Repeticion = factor(Repeticion)
+  )
+
+str(fb)
 ```
 
 # Modelo estadistico
 
-$$Y = u + Temperatura + Tiempo + Temperatura*Tiempo + e$$
+$$Y =\mu + Temperatura + Tiempo + Temperatura*Tiempo + e$$
 # ANOVA
 
 ```{r}
@@ -40,8 +50,19 @@ anova(modelo)
 plot(modelo)
 ```
 
+# Comparación de medias
+
+```{r}
+emm <- emmeans(modelo, ~ Tiempo * Temperatura)
+emm
+
+```
 
 
+## Grafico
+
+
+# PCA
 
 
 
