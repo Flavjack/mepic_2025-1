@@ -6,12 +6,26 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Análisis de datos
+
+1. Organizar mis datos (tidy data)
+2. Importar mis datos al R
+3. Verificar la estructura de los datos (factores vs variables)
+4. Identificar mi modelo estadistico
+5. Hacer una análisis de variancia (aov)
+6. Diagnostico de mi modelo (plot)
+7. Comparación de medias
+8. Gráfico de comparación de médias
+9. Análisis multivariado
+
 # Paquetes
 
 ```{r}
 library(googlesheets4)
 library(tidyverse)
 library(emmeans)
+library(multcomp)
+library(inti) 
 ```
 
 Ya cargué los paquetes requeridos
@@ -23,7 +37,7 @@ Importar de googlesheets al RStudio.
 ```{r}
 url <- "https://docs.google.com/spreadsheets/d/1RO_yGouXxmQUSJ0yp_7oBMGK7AM2nZw-G44GTsnX7KI/edit?gid=2079144391#gid=2079144391"
 
-gs <- url %>% 
+gs <- url %>% # pipe
   as_sheets_id()
 
 fb <- gs %>% 
@@ -43,7 +57,7 @@ $$Y =\mu + Temperatura + Tiempo + Temperatura*Tiempo + e$$
 # ANOVA
 
 ```{r}
-modelo <- aov(Catequinas ~ Tiempo * Temperatura, data = fb)
+modelo <- aov(Totales_Polifenoles ~ Tiempo * Temperatura, data = fb)
 
 anova(modelo)
 
@@ -53,16 +67,54 @@ plot(modelo)
 # Comparación de medias
 
 ```{r}
-emm <- emmeans(modelo, ~ Tiempo * Temperatura)
-emm
+emm <- emmeans(modelo, ~ Temperatura | Tiempo)
 
+cm <- cld(emm
+          , alpha = 0.05
+          , Letters = letters
+          , adjust = "tukey"
+          )
+
+cm
 ```
-
 
 ## Grafico
 
+```{r}
+plot_smr(data = cm 
+         , x = "Tiempo"
+         , y = "emmean"
+         , group = "Temperatura"
+         , error = "SE"
+         , sig = ".group"
+         , type = "bar"
+         , ylab = "Polifenoles totales"
+         )
+```
 
 # PCA
+
+```{r}
+rs <- fb %>%
+  group_by(Tiempo, Temperatura) %>%
+  summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE))) %>% 
+  dplyr::select(!c(Epicatequina))
+
+library(FactoMineR)
+
+mv <- rs %>% 
+  PCA(scale.unit = T, quali.sup = c(1, 2))
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
